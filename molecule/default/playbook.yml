@@ -178,7 +178,7 @@
       fact_nameservers="[]"
 
     - name: populate fact_nameservers
-      set_fact: fact_nameservers="{{fact_nameservers}} + ['{{ {{ hostvars[item][  "ansible_"+hostvars[host]["ansible_default_ipv4"]["interface"]  ]['ipv4']['address'] }} }}']"
+      set_fact: fact_nameservers="{{fact_nameservers}} + ['{{ hostvars[item][  "ansible_"+hostvars[host]["ansible_default_ipv4"]["interface"]  ]['ipv4']['address'] }}']"
       with_items:
       -  "{{ groups["nameservers"] }}"
       when: groups["nameservers"] is defined
