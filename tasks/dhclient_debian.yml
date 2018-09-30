@@ -7,3 +7,4 @@
     boss__dhclient__svc: network-manager
     boss__dhclient__extra_pkgs:
       - network-manager
+      - net-tools
