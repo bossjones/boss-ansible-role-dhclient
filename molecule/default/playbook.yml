@@ -175,7 +175,7 @@
       when: current_ip is defined
 
     - name: set_fact fact_nameservers
-      fact_nameservers="[]"
+      set_fact: fact_nameservers="[]"
 
     - name: populate fact_nameservers
       set_fact: fact_nameservers="{{fact_nameservers}} + ['{{ hostvars[item][  "ansible_"+hostvars[host]["ansible_default_ipv4"]["interface"]  ]['ipv4']['address'] }}']"
