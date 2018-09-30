@@ -178,9 +178,9 @@ scenario:
   name: default
   test_sequence:
     - destroy
+    - dependency
     - syntax
     - create
-    - dependency
     - prepare
     - converge
     - lint
