@@ -178,6 +178,25 @@ verifier:
     enabled: False
 scenario:
   name: default
+  # destroy_sequence:
+  #   - destroy
+  create_sequence:
+    - dependency
+    - create
+    - prepare
+  # check_sequence:
+  #   - destroy
+  #   - dependency
+  #   - create
+  #   - prepare
+  #   - converge
+  #   - check
+  #   - destroy
+  # converge_sequence:
+  #   - dependency
+  #   - create
+  #   - prepare
+  #   - converge
   test_sequence:
     - destroy
     - dependency
