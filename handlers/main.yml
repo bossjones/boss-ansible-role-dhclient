@@ -1,0 +1,7 @@
+---
+- name: restart dhcp
+  tags: dhclient
+  become: true
+  service:
+    name: "{{ boss__dhclient__svc }}"
+    state: restarted

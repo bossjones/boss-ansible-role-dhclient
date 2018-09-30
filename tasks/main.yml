@@ -1,0 +1,44 @@
+---
+- name: Attempting to execute os family specific tasks (Debian)
+  tags: dhclient
+  include_tasks: "dhclient_{{ ansible_os_family|lower }}.yml"
+  when: ansible_os_family == 'Debian'
+
+- name: Attempting to execute os family specific tasks (RedHat)
+  tags: dhclient
+  include_tasks: "dhclient_{{ ansible_os_family|lower }}.yml"
+  when: ansible_os_family == 'RedHat'
+
+- name: Ensure that the dhclient package is installed
+  tags: dhclient
+  become: true
+  package:
+    name: "{{ boss__dhclient__pkg }}"
+    state: present
+  register: boss__dhclient__package
+
+- name: Attempting to overlay dhcp configurations
+  tags: dhclient
+  become: true
+  template:
+    src: dhclient.conf.j2
+    dest: "{{ boss__dhclient__cfg }}/dhclient-{{ item.interface }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart dhcp
+  with_items: "{{ boss__dhclient }}"
+  when:
+    - boss__dhclient|length > 0
+    - boss__dhclient__package is success
+    - item.interface is defined
+    - item.settings|length > 0
+
+- name: Ensure that dhcp is started and enabled on boot
+  tags: dhclient
+  become: true
+  service:
+    enabled: yes
+    name: "{{ boss__dhclient__svc }}"
+    state: started
+  when: boss__dhclient__package is success

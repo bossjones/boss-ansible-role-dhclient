@@ -1,0 +1,27 @@
+# {{ ansible_managed }}
+
+interface "{{ item.interface }}" {
+{% for key, value in item.settings.iteritems()|sort %}
+{%   if value is mapping %}
+{%     for x, y in value.iteritems()|sort %}
+{%       if y is string %}
+    {{ key }} {{ x }} "{{ y|string }}";
+{%       elif y is number %}
+    {{ key }} {{ x }} {{ y|int }};
+{%       elif y is iterable %}
+    {{ key }} {{ x }} {{ y|join(', ') }};
+{%       else %}
+    {{ key }} {{ x }} {{ y }};
+{%       endif %}
+{%     endfor %}
+{%   elif value is iterable %}
+    {{ key }} {{ value|join(', ') }};
+{%   elif value is string %}
+    {{ key }} "{{ value|string }}";
+{%   elif value is number %}
+    {{ key }} {{ value|int }};
+{%   else %}
+    {{ key }} {{ value }};
+{%   endif %}
+{% endfor %}
+}

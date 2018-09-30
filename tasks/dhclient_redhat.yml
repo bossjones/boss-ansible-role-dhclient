@@ -1,0 +1,7 @@
+---
+- name: Attempting to set os family specific facts (RedHat)
+  tags: dhclient
+  set_fact:
+    boss__dhclient__cfg: /etc/dhcp
+    boss__dhclient__pkg: dhclient
+    boss__dhclient__svc: network
