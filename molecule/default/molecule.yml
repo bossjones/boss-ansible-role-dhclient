@@ -38,6 +38,8 @@ platforms:
     networks:
       - name: foo1
       - name: bar1
+    groups:
+      - nameservers
 
   - name: docker-dnsmasq2
     image: solita/ubuntu-systemd
@@ -66,6 +68,8 @@ platforms:
     networks:
       - name: foo2
       - name: bar2
+    groups:
+      - nameservers
 
   - name: docker-dhclient1
     image: solita/ubuntu-systemd

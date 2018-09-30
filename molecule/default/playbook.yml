@@ -103,6 +103,44 @@
 #     - role: boss-ansible-role-environment
 #     # - role: boss-ansible-role-etckeeper
 
+# SOURCE: https://github.com/retr0h/ansible-etcd/blob/master/molecule/resources/playbooks/playbook.yml
+- hosts: all
+  pre_tasks:
+    - name: Update apt cache on Debian based systems
+      apt: update_cache=yes cache_valid_time=3600
+      when: ansible_os_family == "Debian"
+    - name: Install prerequisite packages for facts
+      package: name={{ item }}
+      with_items:
+        - iproute
+    - name: Install prerequisite packages for tests
+      package: name={{ item }}
+      with_items:
+        - curl
+    - name: Gather facts now that prerequisite packages are installed
+      setup: filter=ansible_*
+
+    - name: set current_ip fact
+      set_fact:
+        current_ip: "{{item}}"
+      with_items: "{{hostvars[inventory_hostname]['ec2_ip_address']}}"
+      when: hostvars[inventory_hostname]['ec2_ip_address'] is defined
+
+    - debug: msg="current_ip = {{ current_ip }}"
+      when: current_ip is defined
+
+    - name: set_fact fact_nameservers
+      fact_nameservers="[]"
+
+    - name: populate fact_nameservers
+      set_fact: fact_nameservers="{{fact_nameservers}} + ['{{ {{ hostvars[item][  "ansible_"+hostvars[host]["ansible_default_ipv4"]["interface"]  ]['ipv4']['address'] }} }}']"
+      with_items:
+      -  "{{ groups["nameservers"] }}"
+      when: groups["nameservers"] is defined
+
+    - debug: msg="fact_nameservers = {{ fact_nameservers }}"
+      when: fact_nameservers is defined
+
 # no_log: true
 # FIXME: NEW 9/28/2018
 - hosts: servers
@@ -111,10 +149,47 @@
   become_method: sudo
   tags:
     - dnsmasq
+
+  pre_tasks:
+    - name: Update apt cache on Debian based systems
+      apt: update_cache=yes cache_valid_time=3600
+      when: ansible_os_family == "Debian"
+    - name: Install prerequisite packages for facts
+      package: name={{ item }}
+      with_items:
+        - iproute
+    - name: Install prerequisite packages for tests
+      package: name={{ item }}
+      with_items:
+        - curl
+    - name: Gather facts now that prerequisite packages are installed
+      setup: filter=ansible_*
+
+    - name: set current_ip fact
+      set_fact:
+        current_ip: "{{item}}"
+      with_items: "{{hostvars[inventory_hostname]['ec2_ip_address']}}"
+      when: hostvars[inventory_hostname]['ec2_ip_address'] is defined
+
+    - debug: msg="current_ip = {{ current_ip }}"
+      when: current_ip is defined
+
+    - name: set_fact fact_nameservers
+      fact_nameservers="[]"
+
+    - name: populate fact_nameservers
+      set_fact: fact_nameservers="{{fact_nameservers}} + ['{{ {{ hostvars[item][  "ansible_"+hostvars[host]["ansible_default_ipv4"]["interface"]  ]['ipv4']['address'] }} }}']"
+      with_items:
+      -  "{{ groups["nameservers"] }}"
+      when: groups["nameservers"] is defined
+
+    - debug: msg="fact_nameservers = {{ fact_nameservers }}"
+      when: fact_nameservers is defined
+
   vars:
-    boss__dnsmasq__nameservers:
-      - "192.168.33.100"
-      - "192.168.33.101"
+    boss__dnsmasq__nameservers: "{{ fact_nameservers }}"
+      # - "192.168.33.100"
+      # - "192.168.33.101"
   roles:
     - role: boss-ansible-role-dnsmasq
       # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -124,8 +199,8 @@
       boss__dnsmasq__tftp: False
       # Additional hosts file, /etc/hosts format (it is a list!)
       boss__dnsmasq__conf_hosts:
-      - ["192.168.33.100", "dnsmasq1.darklabs.home", "dnsmasq1" ]
-      - ["192.168.33.101", "dnsmasq2.darklabs.home", "dnsmasq2" ]
+      - ["{{ fact_nameservers[0] }}", "dnsmasq1.darklabs.home", "dnsmasq1" ]
+      - ["{{ fact_nameservers[1] }}", "dnsmasq2.darklabs.home", "dnsmasq2" ]
 
       boss__dnsmasq__conf_address:
       - ["/localhost/127.0.0.1"]
@@ -174,54 +249,54 @@
       # END KNOWN WORKING CONFIG
       # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
-- hosts: servers
-  gather_facts: True
-  become: yes
-  become_method: sudo
-  tags:
-    - dhclient
-  vars:
-    boss__dnsmasq__nameservers:
-      - "192.168.33.100"
-      - "192.168.33.101"
-  roles:
-    - role: boss-ansible-role-dhclient
-      boss__dhclient:
-        - interface: "{{ ansible_default_ipv4.address }}"
-          settings:
-            prepend:
-              domain-name-servers: "{{ boss__dnsmasq__nameservers }}"
-                # - 1.1.1.1
-                # - 1.0.0.1
-            request:
-              - broadcast-address
-              - domain-name
-              - domain-name-servers
-              - host-name
-              - routers
-              - subnet-mask
-            require:
-              - domain-name-severs
-              - subnet-mask
-            # supersede:
-            #   host-name: dhcp.linuxhq.org
-            #   domain-name: linuxhq.org
+# - hosts: servers
+#   gather_facts: True
+#   become: yes
+#   become_method: sudo
+#   tags:
+#     - dhclient
+#   vars:
+#     boss__dnsmasq__nameservers:
+#       - "192.168.33.100"
+#       - "192.168.33.101"
+#   roles:
+#     - role: boss-ansible-role-dhclient
+#       boss__dhclient:
+#         - interface: "{{ ansible_default_ipv4.address }}"
+#           settings:
+#             prepend:
+#               domain-name-servers: "{{ boss__dnsmasq__nameservers }}"
+#                 # - 1.1.1.1
+#                 # - 1.0.0.1
+#             request:
+#               - broadcast-address
+#               - domain-name
+#               - domain-name-servers
+#               - host-name
+#               - routers
+#               - subnet-mask
+#             require:
+#               - domain-name-severs
+#               - subnet-mask
+#             # supersede:
+#             #   host-name: dhcp.linuxhq.org
+#             #   domain-name: linuxhq.org
 
 
-- hosts: servers
-  gather_facts: True
-  become: yes
-  become_method: sudo
-  tags:
-    - debug
-  roles:
-    - role: boss-ansible-role-debug
-    - role: boss-ansible-role-sysctl
-      bossjones__user: root
-      bossjones__group: root
-      boss__sysctl__host_parameters:
-        'net.ipv6.conf.all.disable_ipv6':
-          value: 1
-          comment: |
-            Disable IPv6 on all interfaces.
-          state: "present"
+# - hosts: servers
+#   gather_facts: True
+#   become: yes
+#   become_method: sudo
+#   tags:
+#     - debug
+#   roles:
+#     - role: boss-ansible-role-debug
+#     - role: boss-ansible-role-sysctl
+#       bossjones__user: root
+#       bossjones__group: root
+#       boss__sysctl__host_parameters:
+#         'net.ipv6.conf.all.disable_ipv6':
+#           value: 1
+#           comment: |
+#             Disable IPv6 on all interfaces.
+#           state: "present"
