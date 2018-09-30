@@ -104,42 +104,42 @@
 #     # - role: boss-ansible-role-etckeeper
 
 # SOURCE: https://github.com/retr0h/ansible-etcd/blob/master/molecule/resources/playbooks/playbook.yml
-- hosts: all
-  pre_tasks:
-    - name: Update apt cache on Debian based systems
-      apt: update_cache=yes cache_valid_time=3600
-      when: ansible_os_family == "Debian"
-    - name: Install prerequisite packages for facts
-      package: name={{ item }}
-      with_items:
-        - iproute
-    - name: Install prerequisite packages for tests
-      package: name={{ item }}
-      with_items:
-        - curl
-    - name: Gather facts now that prerequisite packages are installed
-      setup: filter=ansible_*
+# - hosts: all
+#   pre_tasks:
+#     - name: Update apt cache on Debian based systems
+#       apt: update_cache=yes cache_valid_time=3600
+#       when: ansible_os_family == "Debian"
+#     - name: Install prerequisite packages for facts
+#       package: name={{ item }}
+#       with_items:
+#         - iproute
+#     - name: Install prerequisite packages for tests
+#       package: name={{ item }}
+#       with_items:
+#         - curl
+#     - name: Gather facts now that prerequisite packages are installed
+#       setup: filter=ansible_*
 
-    - name: set current_ip fact
-      set_fact:
-        current_ip: "{{item}}"
-      with_items: "{{hostvars[inventory_hostname]['ec2_ip_address']}}"
-      when: hostvars[inventory_hostname]['ec2_ip_address'] is defined
+#     - name: set current_ip fact
+#       set_fact:
+#         current_ip: "{{item}}"
+#       with_items: "{{hostvars[inventory_hostname]['ec2_ip_address']}}"
+#       when: hostvars[inventory_hostname]['ec2_ip_address'] is defined
 
-    - debug: msg="current_ip = {{ current_ip }}"
-      when: current_ip is defined
+#     - debug: msg="current_ip = {{ current_ip }}"
+#       when: current_ip is defined
 
-    - name: set_fact fact_nameservers
-      fact_nameservers="[]"
+#     - name: set_fact fact_nameservers
+#       fact_nameservers="[]"
 
-    - name: populate fact_nameservers
-      set_fact: fact_nameservers="{{fact_nameservers}} + ['{{ {{ hostvars[item][  "ansible_"+hostvars[host]["ansible_default_ipv4"]["interface"]  ]['ipv4']['address'] }} }}']"
-      with_items:
-      -  "{{ groups["nameservers"] }}"
-      when: groups["nameservers"] is defined
+#     - name: populate fact_nameservers
+#       set_fact: fact_nameservers="{{fact_nameservers}} + ['{{ {{ hostvars[item][  "ansible_"+hostvars[host]["ansible_default_ipv4"]["interface"]  ]['ipv4']['address'] }} }}']"
+#       with_items:
+#       -  "{{ groups["nameservers"] }}"
+#       when: groups["nameservers"] is defined
 
-    - debug: msg="fact_nameservers = {{ fact_nameservers }}"
-      when: fact_nameservers is defined
+#     - debug: msg="fact_nameservers = {{ fact_nameservers }}"
+#       when: fact_nameservers is defined
 
 # no_log: true
 # FIXME: NEW 9/28/2018
