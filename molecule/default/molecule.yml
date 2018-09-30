@@ -117,6 +117,8 @@ platforms:
 
 provisioner:
   name: ansible
+  env:
+    ANSIBLE_ROLES_PATH: ./molecule/roles
   lint:
     name: ansible-lint
     enabled: False
