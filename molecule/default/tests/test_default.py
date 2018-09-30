@@ -18,8 +18,8 @@ def test_etc_dnsmasq_folders(host):
     assert f.exists
     assert f.user == 'dnsmasq'
     assert f.group == 'nogroup'
-    assert f.contains('192.168.33.100 dnsmasq1.darklabs.home dnsmasq1')
-    assert f.contains('192.168.33.101 dnsmasq2.darklabs.home dnsmasq2')
+    assert f.contains('dnsmasq1.darklabs.home dnsmasq1')
+    assert f.contains('dnsmasq2.darklabs.home dnsmasq2')
 
 def test_hosts_file(host):
     f = host.file('/etc/hosts.molecule')
