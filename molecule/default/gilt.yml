@@ -7,7 +7,6 @@
   version: master
   dst: molecule/default/.molecule/roles/boss-ansible-role-fact/
 
-
 - git: https://github.com/bossjones/boss-ansible-role-environment.git
   version: master
   dst: molecule/default/.molecule/roles/boss-ansible-role-environment/
@@ -15,7 +14,6 @@
 - git: https://github.com/bossjones/boss-ansible-role-core.git
   version: master
   dst: molecule/default/.molecule/roles/boss-ansible-role-core/
-
 
 - git: https://github.com/bossjones/boss-ansible-role-dnsmasq.git
   version: master

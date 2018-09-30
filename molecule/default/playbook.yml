@@ -169,7 +169,6 @@
   become_method: sudo
   tags:
     - dnsmasq
-
   pre_tasks:
     - name: Update apt cache on Debian based systems
       apt: update_cache=yes cache_valid_time=3600
