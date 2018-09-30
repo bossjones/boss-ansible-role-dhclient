@@ -141,6 +141,26 @@
 #     - debug: msg="fact_nameservers = {{ fact_nameservers }}"
 #       when: fact_nameservers is defined
 
+- hosts: all
+  gather_facts: True
+  become: yes
+  become_method: sudo
+  tags:
+    - dnsmasq
+
+  pre_tasks:
+    - name: Update apt cache on Debian based systems
+      apt: update_cache=yes cache_valid_time=3600
+      when: ansible_os_family == "Debian"
+    - name: Install prerequisite packages for facts
+      package: name={{ item }}
+      with_items:
+        - iproute
+    - name: Install prerequisite packages for tests
+      package: name={{ item }}
+      with_items:
+        - curl
+
 # no_log: true
 # FIXME: NEW 9/28/2018
 - hosts: servers

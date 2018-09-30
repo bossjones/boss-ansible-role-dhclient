@@ -1,4 +1,7 @@
 ---
+# NOTE: https://github.com/metacloud/molecule/issues/836
+# ansible_default_ipv4 not populated when using docker driver
+
 dependency:
   name: gilt
 driver:
@@ -40,6 +43,7 @@ platforms:
     #   - name: bar1
     groups:
       - nameservers
+      - servers
 
   - name: docker-dnsmasq2
     image: solita/ubuntu-systemd
@@ -70,6 +74,7 @@ platforms:
     #   - name: bar2
     groups:
       - nameservers
+      - servers
 
   - name: docker-dhclient1
     image: solita/ubuntu-systemd
@@ -84,6 +89,8 @@ platforms:
     command: /sbin/init
     security_opts:
       - seccomp=unconfined
+    groups:
+      - servers
 
   # - name: fedora-01
   #   image: bossjones/fedora24-systemd-ansible:latest
