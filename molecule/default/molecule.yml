@@ -174,4 +174,4 @@ scenario:
     - lint
     - side_effect
     - verify
-    - destroy
+    # - destroy

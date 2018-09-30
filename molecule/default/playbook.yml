@@ -215,7 +215,7 @@
   tags:
     - debug
   roles:
-    # - role: boss-ansible-role-debug
+    - role: boss-ansible-role-debug
     - role: boss-ansible-role-sysctl
       bossjones__user: root
       bossjones__group: root
