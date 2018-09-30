@@ -220,6 +220,7 @@ Vagrant.configure(2) do |config|
         }
         # ansible.skip_tags = %w[bootstrap]
         ansible.raw_arguments = ["--forks=10"]
+        ansible.tags = ["dhclient", "debug"]
       end
     end
   end
