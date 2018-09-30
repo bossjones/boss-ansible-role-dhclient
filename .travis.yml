@@ -8,6 +8,9 @@ services:
 
 before_install:
   - sudo apt-get -qq update
+  # Install any version of ansible simply so we can run ansible-galaxy
+  - pip install ansible
+  - make download-roles
 
 install:
   - pip install tox-travis
