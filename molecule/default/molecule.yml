@@ -1,6 +1,6 @@
 ---
-# NOTE: https://github.com/metacloud/molecule/issues/836
 # ansible_default_ipv4 not populated when using docker driver
+# NOTE: https://github.com/metacloud/molecule/issues/836
 
 dependency:
   name: gilt
@@ -180,9 +180,10 @@ scenario:
     - destroy
     - syntax
     - create
+    - dependency
     - prepare
     - converge
     - lint
     - side_effect
     - verify
-    # - destroy
+    - destroy
