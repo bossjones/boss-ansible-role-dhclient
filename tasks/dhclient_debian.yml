@@ -5,3 +5,5 @@
     boss__dhclient__cfg: /etc/dhcp
     boss__dhclient__pkg: isc-dhcp-client
     boss__dhclient__svc: network-manager
+    boss__dhclient__extra_pkgs:
+      - network-manager

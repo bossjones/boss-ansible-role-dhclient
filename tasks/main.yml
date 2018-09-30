@@ -17,6 +17,15 @@
     state: present
   register: boss__dhclient__package
 
+- name: Ensure that the extra packages are installed
+  tags: dhclient
+  become: true
+  package:
+    name: "{{ item }}"
+    state: present
+  register: boss__dhclient__extra_package
+  with_items: "{{ boss__dhclient__extra_pkgs }}"
+
 - name: Attempting to overlay dhcp configurations
   tags: dhclient
   become: true
