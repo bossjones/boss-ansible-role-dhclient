@@ -48,6 +48,7 @@ list:
 	@$(MAKE) -qp | awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$$)/ {split($$1,A,/ /);for(i in A)print A[i]}' | sort
 
 download-roles:
+	@test -d ./roles || mkdir roles ;\
 	ansible-galaxy install -r requirements.yml --roles-path ./roles/
 
 raw:

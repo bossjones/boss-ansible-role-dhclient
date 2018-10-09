@@ -1,6 +1,9 @@
 ---
+# ansible_default_ipv4 not populated when using docker driver
+# NOTE: https://github.com/metacloud/molecule/issues/836
+
 dependency:
-  name: galaxy
+  name: gilt
 driver:
   name: docker
 lint:
@@ -24,20 +27,23 @@ platforms:
     command: /sbin/init
     security_opts:
       - seccomp=unconfined
-    exposed_ports:
-      - 53/udp
-      - 53/tcp
-    published_ports:
-      - 8053:53/udp
-      - 8053:53/tcp
+    # exposed_ports:
+    #   - 53/udp
+    #   - 53/tcp
+    # published_ports:
+    #   - 8053:53/udp
+    #   - 8053:53/tcp
     ulimits:
       - nofile:262144:262144
     dns_servers:
       - 8.8.8.8
       - 8.8.4.4
-    networks:
-      - name: foo1
-      - name: bar1
+    # networks:
+    #   - name: foo1
+    #   - name: bar1
+    groups:
+      - nameservers
+      - servers
 
   - name: docker-dnsmasq2
     image: solita/ubuntu-systemd
@@ -52,20 +58,23 @@ platforms:
     command: /sbin/init
     security_opts:
       - seccomp=unconfined
-    exposed_ports:
-      - 53/udp
-      - 53/tcp
-    published_ports:
-      - 8053:53/udp
-      - 8053:53/tcp
+    # exposed_ports:
+    #   - 53/udp
+    #   - 53/tcp
+    # published_ports:
+    #   - 8053:53/udp
+    #   - 8053:53/tcp
     ulimits:
       - nofile:262144:262144
-    dns_servers:
-      - 8.8.8.8
-      - 8.8.4.4
-    networks:
-      - name: foo2
-      - name: bar2
+    # dns_servers:
+    #   - 8.8.8.8
+    #   - 8.8.4.4
+    # networks:
+    #   - name: foo2
+    #   - name: bar2
+    groups:
+      - nameservers
+      - servers
 
   - name: docker-dhclient1
     image: solita/ubuntu-systemd
@@ -80,6 +89,8 @@ platforms:
     command: /sbin/init
     security_opts:
       - seccomp=unconfined
+    groups:
+      - servers
 
   # - name: fedora-01
   #   image: bossjones/fedora24-systemd-ansible:latest
@@ -106,56 +117,58 @@ platforms:
 
 provisioner:
   name: ansible
+  env:
+    ANSIBLE_ROLES_PATH: ./molecule/roles
   lint:
     name: ansible-lint
     enabled: False
     # EANSIBLE0013 should not be raised for shell tasks that use globs.
     options:
       x: ANSIBLE0013
-  inventory:
-    group_vars:
-      docker-hosts:
-        # This should allow docker-in-docker to work
-        docker_storage_driver: vfs
-        molecule_ansible_iface: ansible_eth0
-      vagrant-hosts:
-        molecule_ansible_iface: ansible_eth1
-    host_vars:
-      docker-dnsmasq1:
-        # SOURCE: https://github.com/osism/ansible-hosts/blob/ce8147623491011269bf15291bd8bf83397ab1ff/molecule/default/molecule.yml
-        # NOTE: workaround for https://github.com/moby/moby/issues/22281
-        hosts_file: /etc/hosts.molecule
-        management_interface: lo0
-        inventory_hostname: docker-dnsmasq1
-        inventory_hostname_short: docker-dnsmasq1
-        ansible_lo0:
-          ipv4:
-            address: 127.0.0.1
-        ansible_default_ipv4:
-          address: 127.0.1.2
-      docker-dnsmasq2:
-        # SOURCE: https://github.com/osism/ansible-hosts/blob/ce8147623491011269bf15291bd8bf83397ab1ff/molecule/default/molecule.yml
-        # NOTE: workaround for https://github.com/moby/moby/issues/22281
-        hosts_file: /etc/hosts.molecule
-        management_interface: lo0
-        inventory_hostname: docker-dnsmasq2
-        inventory_hostname_short: docker-dnsmasq2
-        ansible_lo0:
-          ipv4:
-            address: 127.0.0.1
-        ansible_default_ipv4:
-          address: 127.0.1.3
+  # inventory:
+  #   group_vars:
+  #     docker-hosts:
+  #       # This should allow docker-in-docker to work
+  #       docker_storage_driver: vfs
+  #       molecule_ansible_iface: ansible_eth0
+  #     vagrant-hosts:
+  #       molecule_ansible_iface: ansible_eth1
+  #   host_vars:
+  #     docker-dnsmasq1:
+  #       # SOURCE: https://github.com/osism/ansible-hosts/blob/ce8147623491011269bf15291bd8bf83397ab1ff/molecule/default/molecule.yml
+  #       # NOTE: workaround for https://github.com/moby/moby/issues/22281
+  #       hosts_file: /etc/hosts.molecule
+  #       management_interface: lo0
+  #       inventory_hostname: docker-dnsmasq1
+  #       inventory_hostname_short: docker-dnsmasq1
+  #       ansible_lo0:
+  #         ipv4:
+  #           address: 127.0.0.1
+  #       ansible_default_ipv4:
+  #         address: 127.0.1.2
+  #     docker-dnsmasq2:
+  #       # SOURCE: https://github.com/osism/ansible-hosts/blob/ce8147623491011269bf15291bd8bf83397ab1ff/molecule/default/molecule.yml
+  #       # NOTE: workaround for https://github.com/moby/moby/issues/22281
+  #       hosts_file: /etc/hosts.molecule
+  #       management_interface: lo0
+  #       inventory_hostname: docker-dnsmasq2
+  #       inventory_hostname_short: docker-dnsmasq2
+  #       ansible_lo0:
+  #         ipv4:
+  #           address: 127.0.0.1
+  #       ansible_default_ipv4:
+  #         address: 127.0.1.3
 
 ansible:
   diff: True
   #verbose: True
-  group_vars:
-    docker-hosts:
-      # This should allow docker-in-docker to work
-      docker_storage_driver: vfs
-      molecule_ansible_iface: ansible_eth0
-    vagrant-hosts:
-      molecule_ansible_iface: ansible_eth1
+  # group_vars:
+  #   docker-hosts:
+  #     # This should allow docker-in-docker to work
+  #     docker_storage_driver: vfs
+  #     molecule_ansible_iface: ansible_eth0
+  #   vagrant-hosts:
+  #     molecule_ansible_iface: ansible_eth1
 verifier:
   name: testinfra
   options:
@@ -165,9 +178,29 @@ verifier:
     enabled: False
 scenario:
   name: default
+  # destroy_sequence:
+  #   - destroy
+  create_sequence:
+    - dependency
+    - create
+    - prepare
+  # check_sequence:
+  #   - destroy
+  #   - dependency
+  #   - create
+  #   - prepare
+  #   - converge
+  #   - check
+  #   - destroy
+  # converge_sequence:
+  #   - dependency
+  #   - create
+  #   - prepare
+  #   - converge
   test_sequence:
     - destroy
-    - syntax
+    - dependency
+    # - syntax
     - create
     - prepare
     - converge
